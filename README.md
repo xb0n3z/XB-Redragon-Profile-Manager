@@ -30,6 +30,7 @@ Enjoy seamless profile switching! 🚀🐉
 
 ## 📥 Installation
 
+** (The Compiled EXE does not require AHK to be installed) **
 1. Install **AutoHotkey v2** (free) from [autohotkey.com](https://www.autohotkey.com/).
 2. Download the latest release from GitHub.
 3. Extract the files and run `XB_Redragon_Profile_Manager.ahk or exe`.
