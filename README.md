@@ -1,6 +1,10 @@
+![XB Redragon Logo](images/XBRedragonBanner2.png)
+
 # 🐉 XB Redragon Profile Manager
 
 **by eXBonez (Richard Bruno)**
+
+![XB Redragon Logo](images/XBRedragonBanner2.png)
 
 🐭⌨️ A simple yet powerful **AutoHotkey v2** tool to automate profile loading for Redragon mice and keyboards (e.g., M913 Impact) — and **any other software** with a GUI "Import/Load" button.
 
