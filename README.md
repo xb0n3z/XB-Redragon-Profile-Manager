@@ -29,9 +29,10 @@ Perfect for MMO gamers who switch complex macros between games! 🎮⚔️
 Enjoy seamless profile switching! 🚀🐉
 
 ## 📥 Installation
+**You do not need Autohotkey installed if you ues the exe package instad of the AHK**
 
 1. Install **AutoHotkey v2** (free) from [autohotkey.com](https://www.autohotkey.com/).
-2. Download the latest release from GitHub.
+2. Download the latest release of XB Profile Manager  from GitHub.
 3. Extract the files and run `XB_Redragon_Profile_Manager.ahk or exe`.
 
 ## ⚙️ Setup (First Time Only)
