@@ -1,0 +1,306 @@
+Device GUI Manager - Complete User Guide
+🎯 What This Program Does
+Automatically loads your custom mouse/keyboard profiles before launching games. Set it up once, then launch games with perfect controls every time!
+
+📋 The Four Tabs - In The RIGHT Order
+1. SETTINGS TAB ← START HERE FIRST!
+Purpose: Tell the program where everything is located.
+
+MUST DO THESE THREE THINGS FIRST:
+
+📁 Select Device GUI EXE
+
+Click "Select Device GUI EXE" button
+
+Navigate to: C:\Program Files (x86)\Redragon M913\
+
+Select OemDrv.exe
+
+Without this, nothing works!
+
+🎯 Capture Import Button
+
+Click "Capture Import Button"
+
+Enter number of clicks (usually 1)
+
+Redragon software opens automatically
+
+Move mouse over the "Import" button
+
+Press F8 to record the location
+
+Success message appears, software closes
+
+📂 Set Profiles Folder
+
+Click "Set Profiles Folder"
+
+Choose where you save your .jmk profile files
+
+All your profiles will appear here automatically
+
+Optional Settings:
+
+🎨 Colors: Click "Pick" to change program background color
+
+🔢 Sorting: Choose how to order your games
+
+🖱️ Devices: Add/switch between different devices
+
+2. GAME EDITOR TAB ← SETUP YOUR GAMES HERE
+Purpose: Create "launch actions" for each game (one-time setup).
+
+How to Add a Game:
+
+🎮 Browse for Game EXE
+
+Click "Browse" next to "Game EXE Path"
+
+Find and select your game's .exe file
+
+Game Name auto-fills (you can edit it)
+
+📄 Browse for Profile
+
+Click "Browse" next to "Profile Path"
+
+Select the .jmk profile file for this game
+
+💾 Save the Game
+
+Click "Add / Update" button
+
+Your game is now ready to launch!
+
+Optional Settings:
+
+⏱️ Launch Delay: Wait time before game starts (milliseconds)
+
+🚀 Launch with EXE: Check this to start game after loading profile
+
+Extra Features:
+
+🖥️ Create Shortcut: Makes desktop icon after saving game
+
+🗑️ Remove: Delete a game from your list
+
+📁 Open EXE Folder: Opens folder containing the game
+
+Remember: This tab is ONLY for setup, not for launching!
+
+3. GAME LAUNCHER TAB ← MAIN TAB FOR PLAYING
+Purpose: Launch games with profiles already loaded.
+
+Three Ways to Launch:
+
+Double-click any game in the list
+
+Select game → Click "Launch Game" button
+
+Desktop shortcut you created earlier
+
+What Happens When You Launch:
+
+✅ Your custom profile loads to mouse
+
+⏱️ Brief pause (if delay set)
+
+🎮 Game starts automatically
+
+📝 Launch time is recorded for sorting
+
+Other Buttons:
+
+📂 Open Profiles Folder: View your profile files
+
+🛠️ Launch Device GUI Editor: Open Redragon software
+
+❌ Exit Program: Close the application
+
+4. PROFILE MANAGER TAB ← QUICK PROFILE SWITCHING
+Purpose: Just load profiles without launching games.
+
+How to Use:
+
+Double-click any profile → Instantly loads to mouse
+
+Select profile → Click "Import Profile" button
+
+Profiles automatically appear from your Profiles Folder
+
+Perfect For:
+
+Testing new profiles
+
+Switching profiles between games
+
+Quick configuration changes
+
+Other Features:
+
+📝 Notes: Add descriptions to remember what each profile does
+
+💾 Backup Profile: Make copies before editing
+
+📂 Set Profiles Folder: Change where profiles are stored
+
+🚀 QUICK START CHECKLIST
+✅ STEP 1: Initial Setup (Settings Tab)
+Selected Device GUI EXE (OemDrv.exe)
+
+Captured Import Button location (press F8)
+
+Set Profiles Folder to where .jmk files are
+
+✅ STEP 2: Add Your Games (Game Editor Tab)
+Browsed to game .exe file
+
+Browsed to matching .jmk profile
+
+Clicked "Add / Update" for each game
+
+Created desktop shortcuts (optional)
+
+✅ STEP 3: Launch & Play (Game Launcher Tab)
+Double-click games to launch
+
+Use desktop shortcuts for quick access
+
+✅ STEP 4: Quick Changes (Profile Manager Tab)
+Double-click profiles to test them
+
+Add notes to remember profile settings
+
+💡 PRO TIPS & TRICKS
+🎯 Efficiency Tips
+Desktop Shortcuts are Game-Changers!
+
+After adding a game in Game Editor, click "Create Shortcut"
+
+Launch directly from desktop - no need to open the program!
+
+Smart Sorting
+
+In Settings, choose "LastPlayed" → "Descending"
+
+Your most recent games always appear at the top!
+
+Profile Notes Save Time
+
+In Profile Manager, add notes like:
+
+"FPS Game - Fast DPI"
+
+"RPG - Extra buttons for spells"
+
+"Work - Slower precision"
+
+🔧 Troubleshooting Common Issues
+❌ "Profile won't import"
+
+Did you complete "Capture Import Button" in Settings?
+
+Try "Test Import Click" button in Settings to verify
+
+Check that Redragon software is installed
+
+❌ "Game won't launch"
+
+Verify .exe path in Game Editor is correct
+
+Ensure "Launch with EXE" is checked
+
+Check that the game .exe actually exists at that location
+
+❌ "Can't find my profiles"
+
+Click "Set Profiles Folder" in Profile Manager
+
+Make sure you're saving .jmk files to that folder
+
+❌ "Nothing happens when I click Launch"
+
+Did you select the Device GUI EXE in Settings?
+
+Is the Redragon software installed?
+
+🔄 Workflow Examples
+🎮 For Gamers:
+
+Settings Tab: Configure everything once
+
+Game Editor: Add all your games (5 minutes)
+
+Game Launcher: Double-click and play!
+
+Desktop: Use shortcuts for fastest access
+
+💼 For Work/Productivity:
+
+Create different profiles for:
+
+Photoshop/Editing (custom shortcuts)
+
+Spreadsheets (navigation macros)
+
+Coding (special key bindings)
+
+Use Profile Manager to switch between them
+
+Add notes so you remember each setup
+
+🧪 For Testing:
+
+Create test profiles in Redragon software
+
+Save as .jmk files to Profiles Folder
+
+Use Profile Manager to quickly test each one
+
+Once perfected, assign to games in Game Editor
+
+📞 Need Help? Quick Diagnostics
+First Time User Checklist:
+Redragon software installed? (Required)
+
+Device GUI EXE selected in Settings?
+
+Import button captured in Settings?
+
+Profiles folder set correctly?
+
+At least one game added in Game Editor?
+
+Quick Fixes:
+Program won't start? Make sure AutoHotkey v2 is installed
+
+Can't find OemDrv.exe? Reinstall Redragon software
+
+Import doesn't work? Re-capture import button
+
+Games not showing? Check Game Editor saved correctly
+
+Still Stuck?
+Close and reopen the program
+
+Verify all Settings tab steps are complete
+
+Try with just ONE game first
+
+Make sure your game .exe actually runs normally
+
+🎉 You're Ready!
+Remember the simple workflow:
+
+Settings Tab → Configure paths (DO THIS FIRST!)
+
+Game Editor Tab → Set up your games
+
+Game Launcher Tab → Play your games
+
+Profile Manager Tab → Quick profile changes
+
+The magic happens when: You double-click a game and it just works - profile loads, game starts, perfect controls every time!
+
+Set it up once, enjoy it forever! 🚀
