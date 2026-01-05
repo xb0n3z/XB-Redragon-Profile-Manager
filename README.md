@@ -10,63 +10,26 @@
 
 Perfect for MMO gamers who switch complex macros between games! 🎮⚔️
 
-## ✨ Key Features
+## 🚀 Key Features
 
-### 🚀 **Smart Automation**
-- **Auto Profile Import** – Launch games and profiles load automatically, no manual clicks required
-- **Universal Import Button Capture** – Works with **ANY** device software (Redragon, Logitech, Razer, Corsair, etc.) – just hover and press F8!
-- **Desktop Shortcut Creator** – Generate one-click shortcuts that launch games with their profiles pre-loaded
+- ⚡ **Auto profile import** when launching games — no more manual clicks!
+- 🖱️ **Create desktop shortcuts** — double-click to launch any game with its custom profile loaded instantly.
+- 📁 **Unlimited profiles** — organize with powerful search, notes, and one-click backups.
+- 🔍 **Powerful search & filtering** — quickly find any game or profile by name.
+- 📝 **Profile/game notes** — add personal reminders or setup tips for each entry.
+- 🎯 **Per-game settings** — custom delays, launch tracking, and last-played timestamps.
+- 📊 **Launch tracking** — see when games were last played (with smart sorting options).
+- 🎛️ **Customizable sorting** — alphabetical, by added date, or last played.
+- ⚙️ **Universal "Import" button capture** — works with **any** software (Redragon, Logitech, Razer, etc.) — just hover + F8!
+- 🛡️ **One-click backups** — safely copy profiles to prevent loss.
+- 🪶 **Lightweight & fully portable** — runs from anywhere, no admin rights or installation needed (beyond AutoHotkey v2).
+- 🌐 **No dependencies** — completely standalone and easy to share.
+- 🎨 **Custom Color Theme Picker** — change the app's look to anything you want — even paste HEX codes!
 
-### 📊 **Powerful Organization**
-- **Unlimited Profiles & Games** – No artificial limits, organize everything your way
-- **Advanced Search & Filtering** – Instantly find games or profiles by name
-- **Multiple Sort Options** – Alphabetical, by added date, or last played
-- **Launch Tracking & Statistics** – See play counts, last played dates, and timestamps
-
-### 🎮 **Per-Game Customization**
-- **Custom Delays** – Set unique import/launch delays for each game
-- **Game/Profile Notes** – Add personal reminders or setup instructions
-- **Flexible Launch Options** – Choose whether to close the manager after launch
-- **Profile-Specific GUI Settings** – Individual GUI close delays per game
-
-### 🔧 **Advanced Tools**
-- **One-Click Profile Backups** – Safeguard your profiles with instant backups
-- **Game Editor** – Full CRUD (Create, Read, Update, Delete) for your game library
-- **Multiple Device Support** – Manage different hardware with separate profile extensions
-- **Profile Manager** – Direct import, backup, and organization of profile files
-
-### 🎨 **Customization & UX**
-- **Custom Color Theme Picker** – Choose any background/text colors or paste HEX codes
-- **Clean, Intuitive Interface** – Four tabbed sections for easy navigation
-- **Portable & Lightweight** – No installation needed, runs from any folder
-- **No Dependencies** – Just AutoHotkey v2 – completely standalone
-
-### ⚡ **Performance & Compatibility**
-- **CLI Support** – Launch games via command line or scripts
-- **System Tray Minimization** – Keep running in background
-- **Window Position Memory** – Remembers your preferred window location
-- **Auto-Repair** – Fixes common INI file issues automatically
-
-What Makes This Unique:
-✅ Truly Universal – Not locked to specific brands
-
-✅ Zero Bloat – Does exactly what you need, nothing more
-
-✅ User-Friendly – Complex automation made simple
-
-✅ Completely Free – No ads, no trials, no limitations
-
-Perfect For:
-🎮 Gamers with multiple hardware profiles
-
-🖱️ Power Users tired of manual profile switching
-
-💼 Content Creators needing quick setup changes
-
-🔧 Tech Enthusiasts who appreciate clean automation
+Enjoy seamless profile switching! 🚀🐉
 
 ## 📥 Installation
-**You do not need Autohotkey installed if you ues the exe package instad of the AHK**
+**You do not need Autohotkey installed if you use the exe package instad of the AHK**
 
 1. Install **AutoHotkey v2** (free) from [autohotkey.com](https://www.autohotkey.com/).
 2. Download the latest release of XB Profile Manager  from GitHub.
