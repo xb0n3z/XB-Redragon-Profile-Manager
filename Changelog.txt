@@ -1,0 +1,49 @@
+============================================================
+                 eXBonez GUI Profile Manager
+                        CHANGELOG
+============================================================
+
+------------------------------------------------------------
+Version 1.0 — Initial Release
+------------------------------------------------------------
+• First public release of the GUI Profile Manager.
+
+
+------------------------------------------------------------
+Version 1.1 — Feature Updates & Improvements
+------------------------------------------------------------
+• Added ability to register devices with exclusive extensions
+  so profiles can be read correctly when using hardware from
+  different manufacturers.
+
+• Added support for recording up to 10 mouse clicks for
+  software that requires navigating through multiple menus.
+
+• Improved wait times and menu‑read prompts for mouse‑click
+  automation.
+
+• Added “Open Profile Folder” button to all tabs for faster
+  navigation.
+
+
+------------------------------------------------------------
+Version 1.2 — Enhancements, Fixes & Quality‑of‑Life Updates
+------------------------------------------------------------
+• Fixed sorting options.  
+  – Profiles tab now sorts alphabetically (folder‑based
+    limitation).  
+  – All other tabs sort properly using the selected method.
+
+• Added ability to delete previously added device hardware.
+
+• Game Editor tab now includes an option to automatically
+  close the application after launching a game.
+
+• Game Launcher now supports per‑game delay timers before the
+  GUI closes.  
+  – The GUI always closes after launching a game (by design).  
+  – Delay allows extra time for hardware profiles to finish
+    loading if needed.  
+  – Future option to minimize instead of close may be added.
+
+• General bug fixes and stability improvements.
