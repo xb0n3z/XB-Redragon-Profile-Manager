@@ -1,6 +1,31 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 #Warn All
+#SingleInstance Force
+; ============================================================
+; Script Name : eXBonez GUI Profile Manager
+; Version     : 1.2
+; Author      : eXBonez
+; Description : A program for importing hardware profiles
+;               when there is no other way besides mouse.
+; Date        : 2026-01-04
+; ============================================================
+
+; --- Static Date Auto‑Updater ---
+scriptFile := A_ScriptFullPath
+fileContent := FileRead(scriptFile)
+
+today := FormatTime(A_Now, "yyyy-MM-dd")
+
+if RegExMatch(fileContent, "Date\s*:\s*(.*)", &m) {
+    newContent := RegExReplace(fileContent, "Date\s*:\s*(.*)", "Date        : 2026-01-04
+    if (newContent != fileContent) {
+        FileDelete(scriptFile)
+        FileAppend(newContent, scriptFile)
+    }
+}
+; --- End Auto‑Updater ---
+
 SetWorkingDir A_ScriptDir
 
 gamesFile := A_ScriptDir . "\games.ini"
@@ -9,8 +34,10 @@ if !FileExist(gamesFile) {
     ; Create minimal INI structure
     IniWrite("Default", gamesFile, "Config", "SelectedDevice")
     IniWrite("*", gamesFile, "Config", "SelectedExtension")
+    IniWrite("1000", gamesFile, "Config", "DefaultProfileDelay")  ; ← ADD THIS LINE!
     IniWrite("Default", gamesFile, "Devices", "1")
     IniWrite("*", gamesFile, "DeviceExtensions", "Default")
+    
 
     ; Also set runtime defaults
     selectedDevice := "Default"
@@ -19,12 +46,24 @@ if !FileExist(gamesFile) {
     deviceCurrentExt := Map()
     deviceCurrentExt["Default"] := "*"
     currentProfileExtension := "*"
+    EnsureDefaultIniKeys()
 }
+
 profileDir := IniRead(gamesFile, "Config", "ProfilesDir", A_ScriptDir . "\Profiles")
 backupDir := A_ScriptDir . "\Backups"
 deviceGuiExe := IniRead(gamesFile, "Config", "DeviceGuiExe", "")
-globalDefaultDelay := 0
-bgColorCfg := IniRead(gamesFile, "Theme", "BgColor", "0xFFF3D4")
+
+; FIX: Properly handle default profile delay (for closing GUI after import)
+currentDelay := IniRead(gamesFile, "Config", "DefaultProfileDelay", "")
+if (currentDelay = "" || !RegExMatch(currentDelay, "^\d+$")) {
+    ; Write the new default if missing or invalid
+    defaultProfileDelay := 1000  ; Your default value
+    IniWrite(defaultProfileDelay, gamesFile, "Config", "DefaultProfileDelay")
+} else {
+    defaultProfileDelay := Integer(currentDelay)
+}
+
+bgColorCfg := IniRead(gamesFile, "Theme", "BgColor", "0xB0BEE3")
 textColorCfg := IniRead(gamesFile, "Theme", "TextColor", "0x000000")
 sortGamesMode := IniRead(gamesFile, "Sort", "Games", "Alphabetical")
 sortProfilesMode := "Alphabetical"
@@ -50,6 +89,27 @@ fullGameNames := []
 fullProfileNames := []
 current_notes_game := ""
 current_notes_profile := ""
+
+EnsureDefaultIniKeys() {
+    global gamesFile
+    ; List of required config keys with defaults
+    requiredKeys := Map(
+        "SelectedDevice", "Default",
+        "SelectedExtension", "*",
+        "DefaultProfileDelay", "1000",
+        "DeviceGuiExe", "",
+        "ProfilesDir", A_ScriptDir . "\Profiles",
+        "LastTab", "1"
+    )
+    
+    for key, defaultValue in requiredKeys {
+        currentValue := IniRead(gamesFile, "Config", key, "")
+        if (currentValue = "") {
+            IniWrite(defaultValue, gamesFile, "Config", key)
+        }
+    }
+}
+
 
 CurrentIsoTimestamp() {
     return FormatTime(A_Now, "yyyy-MM-dd'T'HH:mm:ss")
@@ -163,7 +223,7 @@ LoadGames() {
         kp := StrSplit(key, ".")
         gameKey := RegExReplace(kp[1], "\s"), field := kp[2]
         if !games.Has(gameKey)
-            games[gameKey] := Map("Exe","", "Profiles","", "PostImportDelay",1500, "LaunchExe",1, "Added","", "LastPlayed","", "LaunchCount",0)
+            games[gameKey] := Map("Exe","", "Profiles","", "PostImportDelay",1500, "LaunchExe",1, "CloseManager",1, "Added","", "LastPlayed","", "LaunchCount",0)
         games[gameKey][field] := val
     }
 }
@@ -236,13 +296,14 @@ LoadProfiles() {
     }
 }
 
-SaveGameToIni(gameName, exe, profs, delay, launch, added := "", last := "", count := "") {
+SaveGameToIni(gameName, exe, profs, delay, launch, added := "", last := "", count := "", closeManager := 1) {
     global gamesFile
     key := RegExReplace(gameName, "\s")
-IniWrite(exe, gamesFile, "Games", key . ".Exe")
+    IniWrite(exe, gamesFile, "Games", key . ".Exe")
     IniWrite(profs, gamesFile, "Games", gameName . ".Profiles")
     IniWrite(delay, gamesFile, "Games", gameName . ".PostImportDelay")
     IniWrite(launch, gamesFile, "Games", gameName . ".LaunchExe")
+    IniWrite(closeManager, gamesFile, "Games", gameName . ".CloseManager")
     if (added != "")
         IniWrite(added, gamesFile, "Games", gameName . ".Added")
     if (last != "")
@@ -261,36 +322,55 @@ SortGameNames(games, mode, order) {
     names := []
     For n, dummy in games
         names.Push(n)
+    
     if (names.Length < 2)
         return names
+    
     if (mode = "Alphabetical") {
         s := ""
         for v in names
             s .= v . "`n"
         s := RTrim(s, "`n")
-        Sort s
+        s := Sort(s)
         names := StrSplit(s, "`n")
     } else {
-        temp := []
-        for n in names {
-            t := (mode = "TimeAdded") ? games[n]["Added"] : games[n]["LastPlayed"]
-            if (t = "")
-                t := "9999-99-99T99:99:99"
-            temp.Push(t . "|" . n)
-        }
+        ; Create string to sort
         s := ""
-        for v in temp
-            s .= v . "`n"
+        for n in names {
+            t := ""
+            if (mode = "TimeAdded") {
+                t := games[n]["Added"]
+            } else if (mode = "LastPlayed") {
+                t := games[n]["LastPlayed"]
+            }
+            
+            if (t = "") {
+                if (mode = "TimeAdded")
+                    t := "9999-12-31T23:59:59"
+                else if (mode = "LastPlayed")
+                    t := "1900-01-01T00:00:00"
+            }
+            
+            ; Add timestamp and name as one line
+            s .= t . "|" . n . "`n"
+        }
+        
+        ; Remove trailing newline and sort
         s := RTrim(s, "`n")
-        Sort s
+        s := Sort(s)  ; ISO timestamps sort correctly as strings
+        
+        ; Parse sorted result
         names := []
         for line in StrSplit(s, "`n") {
             p := StrSplit(line, "|")
-            names.Push(p[2])
+            if (p.Length >= 2)
+                names.Push(p[2])
         }
     }
+    
     if (order = "Descending")
         names := ArrayReverse(names)
+    
     return names
 }
 
@@ -307,7 +387,7 @@ SortProfileNames(dir, mode, order) {
         for v in items
             s .= v . "`n"
         s := RTrim(s, "`n")
-        Sort s
+        s := Sort(s)  ; AHK v2: Sort returns the sorted string
         items := StrSplit(s, "`n")
     }
     if (order = "Descending")
@@ -487,7 +567,7 @@ TestImportClick(*) {
 
     ; Launch GUI EXE
     Run(deviceGuiExe)
-    Sleep(1500)
+    Sleep(1000)
 
     ; Activate window
     if WinExist("ahk_exe " . processName)
@@ -520,8 +600,12 @@ TestImportClick(*) {
         ProcessClose(processName)
 }
 
-ImportProfile(path) {
-    global deviceGuiExe, gamesFile
+ImportProfile(path, customDelay := "") {
+    global deviceGuiExe, gamesFile, profileDir, defaultProfileDelay
+    
+    ; Debug: Uncomment to see the delay value
+    ; MsgBox("Profile delay: " . defaultProfileDelay . "ms", "Debug", "T2")
+    
     if (deviceGuiExe = "") {
         MsgBox("Device GUI EXE is not set.`nPlease select it in Settings.", "Error", "Iconx")
         return
@@ -534,7 +618,7 @@ ImportProfile(path) {
         MsgBox("Profile file not found.")
         return
     }
-
+    
     ; Check for multi-click coordinates first
     clickCount := IniRead(gamesFile, "Config", "ImportClickCount", 0)
     if (clickCount > 0) {
@@ -547,7 +631,7 @@ ImportProfile(path) {
                 break
             clickList.Push([x, y])
         }
-
+        
         if (clickList.Length = 0) {
             MsgBox("No valid multi-click coordinates found.", "Error", "Iconx")
             return
@@ -562,27 +646,27 @@ ImportProfile(path) {
         }
         clickList := [[btnX, btnY]]
     }
-
+    
     ; Extract process name
     processName := ""
     if (deviceGuiExe != "")
         processName := SubStr(deviceGuiExe, InStr(deviceGuiExe, "\",, -1) + 1)
-
+    
     ; Launch GUI if not running
     if !ProcessExist(processName) {
         Run(deviceGuiExe)
-        Sleep(2000)
+        Sleep(1500)
     }
-
+    
     ; Flexible window detection
     if !(WinWait("ahk_exe " . processName, "", 5)
         || WinWait("Device", "", 5)
-        || WinWait("GUI", "", 5))
+        || WinWait("GUI", "", 5)) 
     {
         MsgBox("Could not find Device GUI window.")
         return
     }
-
+    
     ; Activate window
     if WinExist("ahk_exe " . processName)
         WinActivate("ahk_exe " . processName)
@@ -590,10 +674,10 @@ ImportProfile(path) {
         WinActivate("Device")
     else if WinExist("GUI")
         WinActivate("GUI")
-
+    
     Sleep(300)
     CoordMode("Mouse", "Screen")
-
+    
     ; Perform all clicks
     for coords in clickList {
         MouseMove(coords[1], coords[2], 10)
@@ -601,14 +685,14 @@ ImportProfile(path) {
         Click
         Sleep(300)
     }
-
+    
     ; Wait for file dialog
     WinWait("ahk_class #32770", "", 10)
     if !WinExist("ahk_class #32770") {
         MsgBox("File open dialog did not appear.")
         return
     }
-
+    
     WinActivate("ahk_class #32770")
     Sleep(600)
     ControlSetText(path, "Edit1", "ahk_class #32770")
@@ -616,8 +700,12 @@ ImportProfile(path) {
     ControlClick("Button1", "ahk_class #32770", , "Left", 1, "NA")
     Sleep(100)
     Send("{Enter}")
-    Sleep(1500)
-
+    
+    ; WAIT for profile to load into hardware before closing
+    ; Use custom delay if provided, otherwise use default
+    delayToUse := (customDelay != "") ? customDelay : defaultProfileDelay
+    Sleep(delayToUse)
+    
     ; Close Device GUI
     if ProcessExist(processName)
         ProcessClose(processName)
@@ -653,6 +741,7 @@ LaunchDeviceGuiEditor(*) {
 }
 
 ; ===== CLI Launch Mode (Desktop Shortcut Support) =====
+; ===== CLI Launch Mode (Desktop Shortcut Support) =====
 if (A_Args.Length > 0 && A_Args[1] = "/launch") {
     if (A_Args.Length < 2)
         ExitApp
@@ -662,7 +751,7 @@ if (A_Args.Length > 0 && A_Args[1] = "/launch") {
     ; Load game list
     LoadGames()
 
-    ; Loose matching (fixes spacing, capitalization, underscores, etc.)
+    ; Loose matching
     if !games.Has(cliGameName) {
         for name, ignore in games {
             if (StrLower(RegExReplace(name, "\W")) = StrLower(RegExReplace(cliGameName, "\W"))) {
@@ -678,10 +767,10 @@ if (A_Args.Length > 0 && A_Args[1] = "/launch") {
 
     ; Update LastPlayed + LaunchCount BEFORE launching
     now := CurrentIsoTimestamp()
-    count := games[cliGameName]["LaunchCount"]
-    if (count = "")
-        count := 0
-    count++
+    launchCount := games[cliGameName]["LaunchCount"]
+    if (launchCount = "")
+        launchCount := 0
+    launchCount++
 
     SaveGameToIni(
         cliGameName,
@@ -691,33 +780,69 @@ if (A_Args.Length > 0 && A_Args[1] = "/launch") {
         games[cliGameName]["LaunchExe"],
         games[cliGameName]["Added"],
         now,
-        count
+        launchCount,
+        games[cliGameName].Has("CloseManager") ? games[cliGameName]["CloseManager"] : 1
     )
 
     ; Launch the game normally
     LaunchGameByName(cliGameName)
 
-    ExitApp
+    ExitApp  ; ← CLI SHOULD ALWAYS EXIT AFTER LAUNCHING
 }
 
 LaunchGameByName(cliGameName) {
-    global games
+    global games, gamesFile, defaultProfileDelay
+    local lastPlayed, count
     exe := games[cliGameName]["Exe"]
     prof := games[cliGameName]["Profiles"]
     delay := games[cliGameName]["PostImportDelay"]
     launch := games[cliGameName]["LaunchExe"]
+    closeManager := games[cliGameName].Has("CloseManager") ? games[cliGameName]["CloseManager"] : 1
+    
+    ; Get the game's GUI close delay
+    guiCloseDelay := IniRead(gamesFile, "Games", cliGameName . ".GuiCloseDelay", defaultProfileDelay)
+    
+    ; Always update LastPlayed timestamp
+    lastPlayed := CurrentIsoTimestamp()
+    
+    ; Get current count
+    count := games[cliGameName]["LaunchCount"]
+    if (count = "")
+        count := 0
+    count++
+    
     if (prof != "")
-        ImportProfile(prof)
+        ImportProfile(prof, guiCloseDelay)  ; ← PASS THE GAME'S DELAY
+    
     if (launch = 1 && exe != "") {
         if (delay != "" && delay is integer)
             Sleep(delay)
-        SaveGameToIni(cliGameName, exe, prof, delay, launch, games[cliGameName]["Added"], CurrentIsoTimestamp())
+        
+        SaveGameToIni(cliGameName, exe, prof, delay, launch, 
+                      games[cliGameName]["Added"], lastPlayed, count, closeManager)
+        
         processName := "DeviceGui.exe"
         if WinExist("ahk_exe " . processName)
             WinClose("ahk_exe " . processName)
+        
         Run('cmd.exe /c timeout /t 1 /nobreak >nul & start "" "' . exe . '"', , "Hide")
+        
+        ; Close the Manager ONLY if checkbox is checked
+        if (closeManager = 1) {
+            Sleep(500)  ; Small delay to ensure game starts
+            ExitApp
+        }
+        ; If closeManager = 0, DON'T ExitApp - stay open
     } else {
-        SaveGameToIni(cliGameName, exe, prof, delay, launch, games[cliGameName]["Added"], CurrentIsoTimestamp())
+        SaveGameToIni(cliGameName, exe, prof, delay, launch, 
+                      games[cliGameName]["Added"], lastPlayed, count, closeManager)
+        
+        ; Close the Manager ONLY if checkbox is checked
+        if (closeManager = 1) {
+            Sleep(500)
+            ExitApp
+        }
+        ; If closeManager = 0, DON'T ExitApp - stay open
     }
 }
 
@@ -784,10 +909,14 @@ gameNameEdit := mainGui.AddEdit("x20 y555 w480 +Border")
 mainGui.AddText("x20 y595 w480", "Profile Path:")
 gameProfileEdit := mainGui.AddEdit("x20 y615 w365 +Border")
 editorBrowseProfileBtn := mainGui.AddButton("x395 y615 w105 h26", "Browse")
-mainGui.AddText("x20 y655 w200", "Launch Delay (ms):")
+mainGui.AddText("x20 y655 w200", "Game Launch Delay (ms):")
 gameDelayEdit := mainGui.AddEdit("x20 y675 w150 +Border")
-launchExeCheckbox := mainGui.AddCheckBox("x200 y675", "Launch with EXE")
+launchExeCheckbox := mainGui.AddCheckBox("x175 y675", "Launch with EXE")
 launchExeCheckbox.Value := 1
+closeManagerCheckbox := mainGui.AddCheckBox("x320 y675", "Close Manager after Launch")
+closeManagerCheckbox.Value := 1
+mainGui.AddText("x193 y700 w140 h20", "GUI Close Delay (ms):")  ; ← MOVED RIGHT 20 PIXELS (was x175)
+guiCloseDelayEdit := mainGui.AddEdit("x305 y698 w65 h22 +Border Number", defaultProfileDelay)
 
 ; TAB 4 - Settings
 tabs.UseTab(4)
@@ -883,6 +1012,19 @@ launcherNotesEdit.OnEvent("Focus", LauncherNotesEditFocused)
 launcherNotesEdit.OnEvent("LoseFocus", SaveLauncherNotes)
 profilesNotesEdit.OnEvent("Focus", ProfilesNotesEditFocused)
 profilesNotesEdit.OnEvent("LoseFocus", SaveProfileNotes)
+tabs.OnEvent("Change", TabChanged)
+TabChanged(*) {
+    ; When switching to Game Launcher tab (tab 1), refresh with latest data
+    if (tabs.Value = 1) {
+        ; Reload games from INI file to get latest timestamps
+        LoadGames()
+        PopulateGameListControls()
+    }
+    ; When switching to Profile Manager tab (tab 2), refresh profiles
+    else if (tabs.Value = 2) {
+        PopulateProfileList()
+    }
+}
 
 LauncherNotesEditFocused(*) {
     global current_notes_game, lbLauncher
@@ -893,19 +1035,31 @@ ProfilesNotesEditFocused(*) {
     global current_notes_profile, lbProfiles
     current_notes_profile := lbProfiles.Text
 }
+
 AddOrUpdateGame(*) {
-    global gameNameEdit, gameExeEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, games
+    global gameNameEdit, gameExeEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, games, closeManagerCheckbox, guiCloseDelayEdit, gamesFile, defaultProfileDelay
     localGameName := Trim(gameNameEdit.Value)
     exe := Trim(gameExeEdit.Value)
     prof := Trim(gameProfileEdit.Value)
     delay := Trim(gameDelayEdit.Value)
     launch := launchExeCheckbox.Value
+    closeManager := closeManagerCheckbox.Value
+    
     if (localGameName = "") {
         MsgBox("Game name cannot be empty.")
         return
     }
+    
     added := (!games.Has(localGameName)) ? CurrentIsoTimestamp() : games[localGameName]["Added"]
-    SaveGameToIni(localGameName, exe, prof, delay, launch, added)
+    SaveGameToIni(localGameName, exe, prof, delay, launch, added, "", "", closeManager)
+    
+    ; Save the GUI close delay
+    guiCloseDelay := Trim(guiCloseDelayEdit.Value)
+    if (guiCloseDelay = "" || !RegExMatch(guiCloseDelay, "^\d+$")) {
+        guiCloseDelay := defaultProfileDelay
+    }
+    IniWrite(guiCloseDelay, gamesFile, "Games", localGameName . ".GuiCloseDelay")
+    
     LoadGames()
     PopulateGameListControls()
     PopulateProfileList()
@@ -913,13 +1067,15 @@ AddOrUpdateGame(*) {
 }
 
 RemoveSelectedGame(*) {
-    global lbGames, games
+    global lbGames, games, gamesFile
     localGameName := lbGames.Text
     if (localGameName = "") {
         MsgBox("No game selected.")
         return
     }
     RemoveGameFromIni(localGameName)
+    ; Also remove GUI close delay if it exists
+    IniDelete(gamesFile, "Games", localGameName . ".GuiCloseDelay")
     LoadGames()
     PopulateGameListControls()
     MsgBox("Game removed.")
@@ -1003,15 +1159,31 @@ LaunchSelectedGame(*) {
         MsgBox("No game selected.")
         return
     }
+    
+    ; Launch the game - LaunchGameByName will update the timestamp
     LaunchGameByName(localGameName)
-    ExitApp
+    
 }
 
 ImportSelectedProfile(*) {
-    global lbProfiles, profileDir
+    global lbProfiles, profileDir, games, gamesFile, defaultProfileDelay
     localProfileName := lbProfiles.Text
-    if (localProfileName != "")
-        ImportProfile(profileDir . "\" . localProfileName)
+    if (localProfileName != "") {
+        ; Try to find if this profile belongs to any game
+        LoadGames()
+        guiCloseDelay := defaultProfileDelay
+        profilePath := profileDir . "\" . localProfileName
+        
+        for gameName, gameData in games {
+            if (gameData["Profiles"] = profilePath) {
+                ; Found the game that uses this profile
+                guiCloseDelay := IniRead(gamesFile, "Games", gameName . ".GuiCloseDelay", defaultProfileDelay)
+                break
+            }
+        }
+        
+        ImportProfile(profilePath, guiCloseDelay)  ; ← PASS THE DELAY
+    }
     else
         MsgBox("No profile selected.")
 }
@@ -1036,10 +1208,13 @@ PickBackgroundColor(*) {
 
 SortSettingsChanged(*) {
     global gamesFile, gamesSortDrop, orderSortDrop, sortGamesMode, sortOrder
+    
     sortGamesMode := gamesSortDrop.Text
     sortOrder := orderSortDrop.Text
     IniWrite(sortGamesMode, gamesFile, "Sort", "Games")
     IniWrite(sortOrder, gamesFile, "Sort", "Order")
+    
+    ; This should refresh the list with new sorting
     PopulateGameListControls()
     PopulateProfileList()
 }
@@ -1098,7 +1273,7 @@ ExitWithDeviceGuiClose(*) {
 }
 
 PopulateGameFields(*) {
-    global lbGames, selGameLabel, gameNameEdit, gameExeEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, games
+    global lbGames, selGameLabel, gameNameEdit, gameExeEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, closeManagerCheckbox, guiCloseDelayEdit, games, gamesFile, defaultProfileDelay
     localGameName := lbGames.Text
     selGameLabel.Text := (localGameName = "") ? "" : "Selected: " . localGameName
     if (localGameName = "") {
@@ -1107,6 +1282,8 @@ PopulateGameFields(*) {
         gameProfileEdit.Value := ""
         gameDelayEdit.Value := ""
         launchExeCheckbox.Value := 1
+        closeManagerCheckbox.Value := 1
+        guiCloseDelayEdit.Value := defaultProfileDelay  ; ← RESET TO DEFAULT
         return
     }
     data := games[localGameName]
@@ -1115,6 +1292,11 @@ PopulateGameFields(*) {
     gameProfileEdit.Value := data["Profiles"]
     gameDelayEdit.Value := data["PostImportDelay"]
     launchExeCheckbox.Value := data["LaunchExe"]
+    closeManagerCheckbox.Value := data.Has("CloseManager") ? data["CloseManager"] : 1
+    
+    ; Set GUI close delay value
+    guiCloseDelay := IniRead(gamesFile, "Games", localGameName . ".GuiCloseDelay", defaultProfileDelay)
+    guiCloseDelayEdit.Value := guiCloseDelay
 }
 
 LauncherGameSelected(*) {
@@ -1136,6 +1318,7 @@ ProfileSelected(*) {
     profileSelLabel.Text := (localProfileName = "") ? "" : "Selected: " . localProfileName
     profilesNotesEdit.Value := (localProfileName = "") ? "" : (profiles.Has(localProfileName) ? profiles[localProfileName]["Notes"] : "")
 }
+
 SaveLauncherNotes(*) {
     global launcherNotesEdit, current_notes_game, games, profiles, gamesFile
     if (current_notes_game = "")
@@ -1168,13 +1351,50 @@ SaveProfileNotes(*) {
 
 PopulateGameListControls() {
     global lbLauncher, lbGames, games, sortGamesMode, sortOrder, fullGameNames
+    
+    ; CRITICAL: Reload games from INI to get latest timestamps
     LoadGames()
+    
+    ; Save current selections
+    selectedLauncher := lbLauncher.Text
+    selectedEditor := lbGames.Text
+    
+    ; Clear lists
     lbLauncher.Delete()
     lbGames.Delete()
+    
+    ; Get sorted names with FRESH data
     fullGameNames := SortGameNames(games, sortGamesMode, sortOrder)
-    for n in fullGameNames {
-        lbLauncher.Add([n])
-        lbGames.Add([n])
+    
+    ; Populate lists
+    for gameName in fullGameNames {
+        lbLauncher.Add([gameName])
+        lbGames.Add([gameName])
+    }
+    
+    ; Restore selections if possible - FIXED FOR AHK v2
+    if (selectedLauncher != "") {
+        ; In AHK v2, we need to manually find the item
+        idx := 0
+        for index, gameItem in fullGameNames {
+            if (gameItem = selectedLauncher) {
+                idx := index
+                break
+            }
+        }
+        if (idx > 0)
+            lbLauncher.Choose(idx)
+    }
+    if (selectedEditor != "") {
+        idx := 0
+        for index, gameItem in fullGameNames {
+            if (gameItem = selectedEditor) {
+                idx := index
+                break
+            }
+        }
+        if (idx > 0)
+            lbGames.Choose(idx)
     }
 }
 
@@ -1211,12 +1431,14 @@ FilterList(lb, fullList, searchText) {
 }
 
 ClearEditorFields(*) {
-    global gameExeEdit, gameNameEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, lbGames, selGameLabel
+    global gameExeEdit, gameNameEdit, gameProfileEdit, gameDelayEdit, launchExeCheckbox, lbGames, selGameLabel, closeManagerCheckbox, guiCloseDelayEdit, defaultProfileDelay
     gameExeEdit.Value := ""
     gameNameEdit.Value := ""
     gameProfileEdit.Value := ""
     gameDelayEdit.Value := ""
     launchExeCheckbox.Value := 0
+    closeManagerCheckbox.Value := 1
+    guiCloseDelayEdit.Value := defaultProfileDelay  ; ← RESET TO DEFAULT
     lbGames.Choose(0)
     selGameLabel.Text := ""
 }
@@ -1398,6 +1620,7 @@ PopulateProfileExtDrop() {
     profileExtDrop.Choose(idx)
     currentProfileExtension := extArr[idx]
 }
+
 DeviceSelectionChanged(*) {
     global devicesDrop, selectedDevice, gamesFile, deviceCurrentExt, deviceExtensions, currentProfileExtension
     newDev := devicesDrop.Text
