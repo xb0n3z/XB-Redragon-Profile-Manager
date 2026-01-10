@@ -6,7 +6,7 @@
 
 ![XB Dragon Logo](images/_XBRedragonDONE.png)
 
-🐭⌨️ A simple yet powerful **AutoHotkey v2** tool to automate profile loading for Redragon mice and keyboards (e.g., M913 Impact) — and **any other software** with a GUI "Import/Load" button.
+🐭⌨️ A simple yet powerful **AutoHotkey v2** tool to automate profile loading for budget mice and keyboards (e.g., M913 Impact) — and **any other software** with a GUI "Import/Load" button.
 
 Perfect for MMO gamers who switch complex macros between games! 🎮⚔️
 
