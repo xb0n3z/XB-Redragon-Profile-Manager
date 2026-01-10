@@ -92,6 +92,7 @@ Track how often and when you play each game:
 
 - **"GUI Not Loaded Properly"**: Ensure your device is connected and its software is running correctly.
 - **Profile not importing**: Check that import button coordinates are correct (re-capture if needed).
+- **Profile not importing completely**: Make sure to give enough time before closing the GUI, use the timer function.
 - **Device not appearing**: Make sure the device software EXE path is set correctly in Settings.
 
 ## ⚠️ Disclaimer
