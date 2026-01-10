@@ -1,8 +1,8 @@
 ![XB Dragon Logo](images/XBRedragonBanner2.png)
 
-# 🐉 XB Profile Manager
+# 🐉 XB Redragon Profile Manager
 
-**by eXBonez (R Bruno)**
+**by eXBonez (R. Bruno)**
 
 ![XB Dragon Logo](images/_XBRedragonDONE.png)
 
@@ -25,25 +25,38 @@ Perfect for MMO gamers who switch complex macros between games! 🎮⚔️
 - 🪶 **Lightweight & fully portable** — runs from anywhere, no admin rights or installation needed (beyond AutoHotkey v2).
 - 🌐 **No dependencies** — completely standalone and easy to share.
 - 🎨 **Custom Color Theme Picker** — change the app's look to anything you want — even paste HEX codes!
+- 🖥️ **Multiple Device Support** — manage different hardware devices (mice, keyboards) in one interface!
+- 🔄 **Multi-Click Import Support** — capture sequences of multiple clicks for complex import workflows!
+- ⚡ **CLI Mode** — launch games directly from command line or batch scripts!
+- 🚨 **Smart Error Handling** — clear warnings when device software isn't properly loaded!
 
 Enjoy seamless profile switching! 🚀🐉
 
 ## 📥 Installation
-**You do not need Autohotkey installed if you use the exe package instad of the AHK**
-
+You can skip step 1 if you use the exe file instead of the AHK
 1. Install **AutoHotkey v2** (free) from [autohotkey.com](https://www.autohotkey.com/).
-2. Download the latest release of XB Profile Manager  from GitHub.
-3. Extract the files and run `XB_Redragon_Profile_Manager.ahk or exe`.
+2. Download the latest release from GitHub.
+3. Extract the files and run `XB_GUI_Profile_Manager.ahk or exe`.
 
 ## ⚙️ Setup (First Time Only)
 
-1. Open your official Redragon (or other) software.
-2. In the tool's **Settings** tab:
-   - Click **Select Redragon EXE** → choose your software's `.exe` (e.g., `OemDrv.exe`).
-   - Click **Capture Import Button** → hover your mouse over the "Import/Load" button → press **F8**.
-   - Test it with **Test Import Click**.
-3. Place your profile files (e.g., `.jmk`) in the `\Profiles` folder.
-4. In the Settings tab, select your file extension (or `*.*` for all files).
+1. **Add a Device** (Settings tab → Devices section)
+   - Click "Add" → enter device name (e.g., "M913-Impact", "K552 Keyboard")
+   
+2. **Configure Device**:
+   - Select device from dropdown
+   - Click "Select Device GUI EXE" → choose your device software's `.exe` (e.g., `OemDrv.exe`)
+   - Click "Capture Import Button" → hover mouse over the "Import/Load" button → press **F8**
+   - Test with "Test Import Click"
+   
+3. **Set Profile Folder**:
+   - Click "Set Device Profile Folder" → choose where your profile files are stored
+   - Add file extensions your device uses (e.g., `jmk`, `prf`, `cfg`)
+   
+4. **Add Your First Game**:
+   - Switch to Game Editor tab
+   - Enter game name, browse for EXE, select profile file
+   - Click "Add/Update" to save
 
 ## 🎮 Basic Use
 
@@ -51,10 +64,39 @@ Enjoy seamless profile switching! 🚀🐉
 - **Launch games**: Game Launcher tab → select game → click "Launch Game".
 - **Create shortcut**: In Game Editor → select a game → click "Create Shortcut" (saves to your desktop).
 - **Manage profiles**: Use the Profile Manager tab for imports and backups.
+- **Switch devices**: Use the device dropdown in any tab to switch between configured hardware.
+
+## 💡 Advanced Features
+
+### 🖱️ Multi-Click Import Sequences
+Some device software requires multiple clicks to import profiles. Use "Capture Import Button" → enter number of clicks needed → record each click position with F8.
+
+### ⚡ CLI/Shortcut Launching
+Create desktop shortcuts that launch games with profiles pre-loaded:
+```
+XB_GUI_Profile_Manager.exe /launch "GameName" "DeviceName"
+```
+
+### 🎨 Theme Customization
+- Settings tab → Colors section → "Pick" to choose background color
+- Text color automatically adjusts for readability
+- Settings are saved between sessions
+
+### 📊 Launch Statistics
+Track how often and when you play each game:
+- Launch count increments automatically
+- Last played timestamp updates on each launch
+- Sort games by most played or recently played
+
+## ⚠️ Troubleshooting
+
+- **"GUI Not Loaded Properly"**: Ensure your device is connected and its software is running correctly.
+- **Profile not importing**: Check that import button coordinates are correct (re-capture if needed).
+- **Device not appearing**: Make sure the device software EXE path is set correctly in Settings.
 
 ## ⚠️ Disclaimer
 
-This tool is **unofficial** and not affiliated with or endorsed by Redragon or any other hardware/software manufacturer.  
+This tool is **unofficial** and not affiliated with or endorsed any hardware/software manufacturer.  
 It interacts with third-party software by automating mouse clicks and file operations.  
 Use entirely at your own risk — the author is not responsible for any damage, data loss, or issues caused to your devices, software, or profiles.  
 Always back up your original profiles before using this tool.
@@ -62,7 +104,8 @@ Always back up your original profiles before using this tool.
 ## 💡 Tips & Notes
 
 > If your file explorer takes a long time to open (e.g., due to network drives or sleeping drives), just try importing again — it will properly load the profile.  
-> If you come up with a better fix, feel free to fork and contribute! 🔧
+> Use the notes feature to document special keybindings or macro setups for each profile!  
+> Regular backups prevent loss if you experiment with new profile configurations.
 
 — **eXBonez** 🐉
 
