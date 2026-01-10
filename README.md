@@ -108,7 +108,7 @@ Always back up your original profiles before using this tool.
 > Regular backups prevent loss if you experiment with new profile configurations.
 
 — **eXBonez** 🐉
-
+[Video demonstration](./Vid/XBProfileManagerDemoVid.mp4)
 ![Screenshot](screenshots/Screenshot1.png)
 ![Screenshot](screenshots/Screenshot2.png)
 ![Screenshot](screenshots/Screenshot3.png)
